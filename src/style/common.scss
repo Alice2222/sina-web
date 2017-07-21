@@ -1,0 +1,28 @@
+body{
+	// width: 1024px;
+	// min-height: 800px;
+}
+body, *, ul, li, p, div{
+	padding: 0px;
+	margin: 0px;
+}
+.ui-tabs--text-color-active-primary .ui-tab-header-item.is-active{
+	color: #333;
+}
+.ui-tabs--indicator-color-primary .ui-tabs__active-tab-indicator{
+	background-color: #ffa00a;
+}
+.ui-tabs__active-tab-indicator{
+	height: 0.165rem;
+}
+.ui-tab-header-item__text{
+	font-size: 22px;
+	color: #333;
+}
+.ui-tab-header-item{
+	padding: 0 .2rem;
+	margin: 0 .3rem
+}
+.ui-tabs--background-color-default .ui-tabs__header{
+	background: #fff
+}
