@@ -14,6 +14,9 @@ export default {
 
 <style>
 @import './style/common.css';
+@import './plugins/font-awsome/css/font-awesome.min.css';
+@import './plugins/font-awsome/css/font-awesome-ie7.min.css';
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
