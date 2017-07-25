@@ -201,7 +201,7 @@
 </template>
 <script>
 	import AlertTip from "@/components/AlertTip";
-	import RegSidebar from "@/components/RegSidebar";
+	import {statusesShow, checkForm} from "@/api/index"
 	let validatePsw, validateEmail, validateNickname;
 	export default{
 		data(){
@@ -240,11 +240,12 @@
 			}
 		},
 		created(){
-			this.handleClickTabItem(true)
+			this.handleClickTabItem(true);
+			//statusesShow();
+			checkForm()
 		},
 		components:{
-			AlertTip,
-			RegSidebar
+			AlertTip
 		},
 		computed:{
 
@@ -305,7 +306,7 @@
 						obj = this.person_reg_info
       	}else{
       		obj = this.official_reg_info
-      	};console.log(obj)
+      	};
       	switch(type){
       		case 'psw':
 		      	if(obj.password.length == 0){
@@ -480,6 +481,7 @@
     			.form-group{
     				font-size: 14px;
     				margin-bottom: 20px;
+    				position: relative;
     				label{
     					line-height: 30px;
     					display: block;
@@ -612,6 +614,8 @@
 	}
 	.tips{
 		font-size: 12px;
+		position: absolute;
+    left: 353px;
 		.notice, .error, .success, .loading{
 			display: inline-block;
 	    /* line-height: 27px; */
