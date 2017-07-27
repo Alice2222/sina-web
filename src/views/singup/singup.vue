@@ -26,7 +26,7 @@
 			<div class="tab-content">
 				<transition name="fade">
 					<section class="person-reg" v-if="person_reg">
-						<form class="reg-form"  v-on:submit.prevent="handleSubmitForm('email')">
+						<form class="reg-form">
 							<section class="form-group">
 								<label for="email"><span class="email-icon"></span><i class="red">*</i>邮箱：</label>
 								<div class="form-control">
@@ -34,7 +34,7 @@
 								</div>
 								<div class="tips">
 									<p class="error"  v-if="email_error">
-										<span class="error-icon"></span>请输入正确的邮箱地址
+										<span class="error-icon"></span>{{email_error_text}}
 									</p>
 									<p class="notice"  v-if="email_notice">
 										<span class="info-icon"></span>您填写的邮箱将作为微博登录名
@@ -97,7 +97,7 @@
 								</div>
 								<div class="tips">
 									<p class="error"  v-if="email_error">
-										<span class="error-icon"></span>请输入常用邮箱
+										<span class="error-icon"></span>{{email_error_text}}
 									</p>
 									<p class="notice"  v-if="email_notice">
 										<span class="info-icon"></span>请输入您常用的邮箱请不要使用私人邮箱作为企业微博的注册邮箱
@@ -151,16 +151,16 @@
 							<section class="form-group">
 								<label for=""><i class="red">*</i>所在地：</label>
 								<div class="form-control">
-									<select name="" id="" v-model="official_reg_info.province">
-										<option value="1">江西省</option>
+									<select name="" id="" v-model="official_reg_info.province" @change="handleProvinceChange">
+										<option v-for="opt in province_opts" :value="opt.id">{{opt.fullname}}</option>
 									</select>
 									<select name="" id="" v-model="official_reg_info.city">
-										<option value="1">南昌市</option>
+										<option v-for="opt in city_opts" :value="opt.id">{{opt.fullname}}</option>
 									</select>
 								</div>
 								<div class="clearfix"></div>
 							</section>
-							<button class="btn btn-large btn-singup" type="submit">立即注册</button>
+							<button class="btn btn-large btn-singup" @click="handleClickSingup('reg')">立即注册</button>
 							<section class="info_list">
 								<ul>
 									<li>
@@ -201,8 +201,8 @@
 </template>
 <script>
 	import AlertTip from "@/components/AlertTip";
-	import {statusesShow, checkForm} from "@/api/index"
-	let validatePsw, validateEmail, validateNickname;
+	import {statusesShow, checkForm, getProvinceList} from "@/api/index"
+	let validatePsw, validateEmail, validateNickname, initProvinceOpts, changeCityOpts;
 	export default{
 		data(){
 			return{
@@ -223,6 +223,7 @@
 				psw_succ: false,
 				email_notice: false,
 				email_error: false,
+				email_error_text: '请输入常用邮箱',
 				email_succ: false,
 				psw_error_text: '请输入密码',
 				email_loading: false,
@@ -236,13 +237,17 @@
 				nickname_notice: false,
 				nickname_error: false,
 				nickname_succ: false,
-				nickname_error_text: '请输入昵称'
+				nickname_error_text: '请输入昵称',
+				province_opts: [],
+				city_opts: [],
+				all_opts: []
 			}
 		},
 		created(){
 			this.handleClickTabItem(true);
+			initProvinceOpts(this);
 			//statusesShow();
-			checkForm() 
+			//checkForm() 
 		},
 		components:{
 			AlertTip
@@ -341,6 +346,9 @@
       		case 'email':
       			console.log(type);break;
       	}
+      },
+      handleProvinceChange: function(){
+      	changeCityOpts(this)
       }
 		}
 	}
@@ -367,24 +375,38 @@
 				vm.psw_error_text = ''
 		}
 	}
-	validateEmail = (vm)=>{
+	validateEmail = async(vm)=>{
 		let email = ''
 		if(vm.person_reg){
 			email = vm.person_reg_info.email
 		}else{
 			email = vm.official_reg_info.email;
 		}
+		vm.email_loading = false
+		vm.email_notice = false
+		vm.email_error = false
+		vm.email_succ = false
 		let reg = /^(\w-*\.*)+@(\w-?)+(\.\w{2,})+$/;
 		if(!reg.test(email)){
-			vm.email_notice = false
 			vm.email_error = true
-			vm.email_succ = false
-			vm.email_loading = false
 		} else {
-			// vm.email_notice = false
-			// vm.email_error = false
-			// vm.email_succ = false
-			// vm.email_loading = true
+			vm.email_loading = true
+			let info = await checkForm('username', email),
+					status = info.data.status.toString();
+			if (!status) {
+				
+			} else {
+				if(status == 0){
+					vm.email_loading = false
+					vm.email_error = true
+				 	vm.email_error_text = info.data.message
+				} else {
+					vm.email_loading = false
+					vm.email_error = false
+					vm.email_succ = true
+				}
+			}
+			
 		}
 	}
 	validateNickname = vm=>{
@@ -404,6 +426,26 @@
 				vm.nickname_succ = true;
 				vm.nickname_error_text = ''
 		}
+	}
+	initProvinceOpts = async(vm)=>{
+		let result = await getProvinceList();
+		if(result.status == 200){
+			vm.all_opts = result.data.data[1]
+			vm.province_opts = result.data.data[0];
+			vm.official_reg_info.province = vm.province_opts[0].id;
+		}
+	}
+	changeCityOpts = async(vm)=>{
+		let province = vm.official_reg_info.province,
+				all_opts = vm.all_opts,
+				province_opts = vm.province_opts,
+				cidx = province_opts.map(opt=>{
+					if(opt.id === province){
+						return opt.cidx
+					}
+				})
+		vm.city_opts = all_opts.slice(cidx[0], cidx[1]);
+		vm.official_reg_info.city = vm.city_opts[0].id
 	}
 </script>
 <style lang="scss" scoped>
@@ -630,7 +672,8 @@
 			color: #da4f23;
 		}
 		.loading{
-			color: #4c81af
+			color: #4c81af;
+			text-indent: 0
 		}
 	}
 	.btn{
