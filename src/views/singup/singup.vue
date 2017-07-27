@@ -242,7 +242,7 @@
 		created(){
 			this.handleClickTabItem(true);
 			//statusesShow();
-			checkForm()
+			checkForm() 
 		},
 		components:{
 			AlertTip
@@ -367,7 +367,7 @@
 				vm.psw_error_text = ''
 		}
 	}
-	validateEmail = vm=>{
+	validateEmail = (vm)=>{
 		let email = ''
 		if(vm.person_reg){
 			email = vm.person_reg_info.email
@@ -381,10 +381,10 @@
 			vm.email_succ = false
 			vm.email_loading = false
 		} else {
-			vm.email_notice = false
-			vm.email_error = false
-			vm.email_succ = false
-			vm.email_loading = true
+			// vm.email_notice = false
+			// vm.email_error = false
+			// vm.email_succ = false
+			// vm.email_loading = true
 		}
 	}
 	validateNickname = vm=>{
