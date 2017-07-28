@@ -9,13 +9,13 @@
 			<div class="tab-header">
 				<ul class="tab-list">
 					<div class="bottom-line"></div>	
-					<li class="tab-item" :class="{is_active: person_reg}" @click="handleClickTabItem(true)">
+					<li class="tab-item" :class="{is_active: person_reg}" @click.stop="handleClickTabItem(true)">
 						<section class="tab-item_text">
 							个人注册
 						</section>
 					</li>
 					<li class="tab-item"><span class="v-line"></span></li>
-					<li class="tab-item" :class="{is_active: !person_reg}"  @click="handleClickTabItem(false)">
+					<li class="tab-item" :class="{is_active: !person_reg}"  @click.stop="handleClickTabItem(false)">
 						<section class="tab-item_text">
 							官方注册
 						</section>
@@ -151,7 +151,7 @@
 							<section class="form-group">
 								<label for=""><i class="red">*</i>所在地：</label>
 								<div class="form-control">
-									<select name="" id="" v-model="official_reg_info.province" @change="handleProvinceChange">
+									<select name="" id="" v-model.lazy="official_reg_info.province" @change="handleProvinceChange">
 										<option v-for="opt in province_opts" :value="opt.id">{{opt.fullname}}</option>
 									</select>
 									<select name="" id="" v-model="official_reg_info.city">
@@ -160,7 +160,7 @@
 								</div>
 								<div class="clearfix"></div>
 							</section>
-							<button class="btn btn-large btn-singup" @click="handleClickSingup('reg')">立即注册</button>
+							<button class="btn btn-large btn-singup" @click="handleClickSingup">立即注册</button>
 							<section class="info_list">
 								<ul>
 									<li>
@@ -244,10 +244,8 @@
 			}
 		},
 		created(){
-			this.handleClickTabItem(true);
+			this.handleClickTabItem(true)
 			initProvinceOpts(this);
-			//statusesShow();
-			//checkForm() 
 		},
 		components:{
 			AlertTip
@@ -277,21 +275,17 @@
 						email: '',
 						password: ''
 					}
-					this.psw_notice = false,
-					this.psw_error = false,
-					this.psw_succ = false,
-					this.email_notice = false,
-					this.email_error = false,
-					this.email_succ = false,
-					this.psw_error_text = '请输入密码',
-					this.email_loading = false,
-					this.official_reg_info = {
-						email: '',
-						password: '',
-						province: '',
-						city: '',
-						nickname: ''
-					}
+					this.psw_notice = false;
+					this.psw_error = false;
+					this.psw_succ = false;
+					this.email_notice = false;
+					this.email_error = false;
+					this.email_succ = false;
+					this.psw_error_text = '请输入密码';
+					this.email_loading = false;
+					this.official_reg_info.email = ''
+					this.official_reg_info.password = ''
+					this.official_reg_info.nickname = ''
       	})
       },
       handleBlurReginfo: function(type){
@@ -308,7 +302,7 @@
       handleFocusReginfo: function(type){
       	let obj = {}
       	if(this.person_reg){
-						obj = this.person_reg_info
+					obj = this.person_reg_info
       	}else{
       		obj = this.official_reg_info
       	};
@@ -349,6 +343,9 @@
       },
       handleProvinceChange: function(){
       	changeCityOpts(this)
+      },
+      handleClickSingup: function(){
+      	
       }
 		}
 	}
@@ -392,11 +389,9 @@
 		} else {
 			vm.email_loading = true
 			let info = await checkForm('username', email),
-					status = info.data.status.toString();
-			if (!status) {
-				
-			} else {
-				if(status == 0){
+					status = info.data.status;
+			if (!status == false) {
+				if(status.toString() == 0){
 					vm.email_loading = false
 					vm.email_error = true
 				 	vm.email_error_text = info.data.message
@@ -432,18 +427,20 @@
 		if(result.status == 200){
 			vm.all_opts = result.data.data[1]
 			vm.province_opts = result.data.data[0];
-			vm.official_reg_info.province = vm.province_opts[0].id;
+			vm.official_reg_info.province = result.data.data[0][0].id;
+			vm.handleProvinceChange()
 		}
 	}
 	changeCityOpts = async(vm)=>{
 		let province = vm.official_reg_info.province,
 				all_opts = vm.all_opts,
 				province_opts = vm.province_opts,
-				cidx = province_opts.map(opt=>{
-					if(opt.id === province){
-						return opt.cidx
-					}
-				})
+				cidx = [];
+		province_opts.map(opt=>{
+			if(opt.id === province){
+				cidx = opt.cidx
+			}
+		})
 		vm.city_opts = all_opts.slice(cidx[0], cidx[1]);
 		vm.official_reg_info.city = vm.city_opts[0].id
 	}
