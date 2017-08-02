@@ -28,22 +28,22 @@
 					<section class="person-reg" v-if="person_reg">
 						<form class="reg-form">
 							<section class="form-group">
-								<label for="email"><span class="email-icon"></span><i class="red">*</i>邮箱：</label>
+								<label for="username"><span class="username-icon"></span><i class="red">*</i>邮箱：</label>
 								<div class="form-control">
-									<input type="text" v-model.trim="person_reg_info.email" v-on:focus="handleFocusReginfo('email')" v-on:blur="handleBlurReginfo('email')" placeholder="请输入您的常用邮箱"/>
+									<input type="text" v-model.trim="person_reg_info.username" v-on:focus="handleFocusReginfo('username')" v-on:blur="handleBlurReginfo('username')" placeholder="请输入您的常用邮箱"/>
 								</div>
 								<div class="tips">
-									<p class="error"  v-if="email_error">
-										<span class="error-icon"></span>{{email_error_text}}
+									<p class="error"  v-if="username_error">
+										<span class="error-icon"></span>{{username_error_text}}
 									</p>
-									<p class="notice"  v-if="email_notice">
+									<p class="notice"  v-if="username_notice">
 										<span class="info-icon"></span>您填写的邮箱将作为微博登录名
 									</p>
-									<p class="success" v-if="email_succ">
+									<p class="success" v-if="username_succ">
 										<span class="succ-icon"></span>
 									</p>
-									<p class="loading" v-if="email_loading">
-										<i class="icon-spinner icon-spin icon-1x"></i>
+									<p class="loading" v-if="username_loading">
+										<i class="fa fa-spinner fa-spin fa-1x"></i>
 									</p>
 								</div>
 								<div class="clearfix"></div>
@@ -66,7 +66,13 @@
 								</div>
 								<div class="clearfix"></div>
 							</section>
-							<button class="btn btn-large btn-singup" type="submit">立即注册</button>
+							<button class="btn btn-large btn-singup" type="button" @click="handleClickSingup" :disabled="loading">
+								<i class="fa fa-spinner fa-spin"  v-if="loading"></i> 立即注册
+							</button>
+							<!-- <Button type="primary" :loading="loading" @click="handleClickSingup">
+					        <span v-if="!loading">Click me!</span>
+					        <span v-else>Loading...</span>
+					    </Button> -->
 							<section class="info_list">
 								<ul>
 									<li>
@@ -91,21 +97,21 @@
 						</header>
 						<form class="reg-form">
 							<section class="form-group">
-								<label for="email"><span class="email-icon"></span><i class="red">*</i>邮箱：</label>
+								<label for="username"><span class="emial-icon"></span><i class="red">*</i>邮箱：</label>
 								<div class="form-control">
-									<input type="text" v-model.trim="official_reg_info.email" v-on:focus="handleFocusReginfo('email')" v-on:blur="handleBlurReginfo('email')" placeholder="邮箱登录"/>
+									<input type="text" v-model.trim="official_reg_info.username" v-on:focus="handleFocusReginfo('username')" v-on:blur="handleBlurReginfo('username')" placeholder="邮箱登录"/>
 								</div>
 								<div class="tips">
-									<p class="error"  v-if="email_error">
-										<span class="error-icon"></span>{{email_error_text}}
+									<p class="error"  v-if="username_error">
+										<span class="error-icon"></span>{{username_error_text}}
 									</p>
-									<p class="notice"  v-if="email_notice">
+									<p class="notice"  v-if="username_notice">
 										<span class="info-icon"></span>请输入您常用的邮箱请不要使用私人邮箱作为企业微博的注册邮箱
 									</p>
-									<p class="success" v-if="email_succ">
+									<p class="success" v-if="username_succ">
 										<span class="succ-icon"></span>
 									</p>
-									<p class="loading" v-if="email_loading">
+									<p class="loading" v-if="username_loading">
 										<i class="icon-spinner icon-spin icon-1x"></i>
 									</p>
 								</div>
@@ -127,7 +133,6 @@
 										<span class="succ-icon"></span>
 									</p>
 								</div>
-
 								<div class="clearfix"></div>
 							</section>
 							<section class="form-group">
@@ -160,7 +165,9 @@
 								</div>
 								<div class="clearfix"></div>
 							</section>
-							<button class="btn btn-large btn-singup" @click="handleClickSingup">立即注册</button>
+							<button class="btn btn-large btn-singup" type="button" @click="handleClickSingup" :disabled="loading">
+								<i class="fa fa-spin fa-spinner" v-if="loading"></i>立即注册
+							</button>
 							<section class="info_list">
 								<ul>
 									<li>
@@ -201,8 +208,8 @@
 </template>
 <script>
 	import AlertTip from "@/components/AlertTip";
-	import {statusesShow, checkForm, getProvinceList} from "@/api/index"
-	let validatePsw, validateEmail, validateNickname, initProvinceOpts, changeCityOpts;
+	import {statusesShow, checkForm, getProvinceList, signin} from "@/api/index"
+	let validatePsw, validateusername, validateNickname, initProvinceOpts, changeCityOpts, initData;
 	export default{
 		data(){
 			return{
@@ -215,24 +222,24 @@
 				alertText: '确认' ,
 				person_reg: false,
 				person_reg_info: {
-					email: '',
+					username: '',
 					password: ''
 				},
 				psw_notice: false,
 				psw_error: false,
 				psw_succ: false,
-				email_notice: false,
-				email_error: false,
-				email_error_text: '请输入常用邮箱',
-				email_succ: false,
+				username_notice: false,
+				username_error: false,
+				username_error_text: '请输入常用邮箱',
+				username_succ: false,
 				psw_error_text: '请输入密码',
-				email_loading: false,
+				username_loading: false,
 				official_reg_info: {
-					email: '',
+					username: '',
 					password: '',
+					nickname: '',
 					province: '',
-					city: '',
-					nickname: ''
+					city: ''
 				},
 				nickname_notice: false,
 				nickname_error: false,
@@ -240,7 +247,8 @@
 				nickname_error_text: '请输入昵称',
 				province_opts: [],
 				city_opts: [],
-				all_opts: []
+				all_opts: [],
+				loading: false
 			}
 		},
 		created(){
@@ -271,29 +279,15 @@
 	      		}
 	      	})
 	      	$bottom_line.animate({left:bottom_line_start, width: $active.outerWidth(false)},200)
-	      	this.person_reg_info = {
-						email: '',
-						password: ''
-					}
-					this.psw_notice = false;
-					this.psw_error = false;
-					this.psw_succ = false;
-					this.email_notice = false;
-					this.email_error = false;
-					this.email_succ = false;
-					this.psw_error_text = '请输入密码';
-					this.email_loading = false;
-					this.official_reg_info.email = ''
-					this.official_reg_info.password = ''
-					this.official_reg_info.nickname = ''
+	      	initData(this)
       	})
       },
       handleBlurReginfo: function(type){
       	switch(type){
       		case 'psw':
 		      	validatePsw(this);break;
-      		case 'email':
-      			validateEmail(this);break;
+      		case 'username':
+      			validateusername(this);break;
       		case 'nickname': 
       			validateNickname(this);break;
       	}
@@ -313,12 +307,12 @@
 				  		this.psw_error = false;
 				  	}else validatePsw(this)
       			break;
-      		case 'email':
-		      	if(obj.email.length == 0){
-				  		this.email_notice = true;
-				  		this.email_error = false;
-				  		this.email_loading = false;
-				  	}else validateEmail(this)
+      		case 'username':
+		      	if(obj.username.length == 0){
+				  		this.username_notice = true;
+				  		this.username_error = false;
+				  		this.username_loading = false;
+				  	}else validateusername(this)
       			break;
       		case 'nickname':
       			if(obj.nickname.length == 0){
@@ -337,15 +331,48 @@
       },
       handleSubmitForm: function(type){
       	switch(type){
-      		case 'email':
+      		case 'username':
       			console.log(type);break;
       	}
       },
       handleProvinceChange: function(){
       	changeCityOpts(this)
       },
-      handleClickSingup: function(){
-      	
+      handleClickSingup: async function(){
+      	let singin_info = {};
+      	if(!this.username_succ){
+      		validateusername(this);
+      	}else if(!this.psw_succ){
+      		validatePsw(this)
+      	}else if(!this.nickname_succ && !this.person_reg){
+      		validateNickname(this)
+      	}
+      	if(this.username_succ && this.psw_succ && (!this.nickname_succ && this.person_reg)){
+      		this.loading = true;
+      		if(this.person_reg){
+	      		singin_info = this.person_reg_info
+	      	}else{
+	      		singin_info = this.official_reg_info
+	      	}
+	      	let response = await signin(...Object.values(singin_info));
+	      	if(response.status == 200){
+	      		if(response.data.status == 1){
+	      			this.$Modal.success({
+                  title: '成功',
+                  content: response.data.success,
+                  onOk: () => {
+                      initData(this);
+                  }
+              });
+	      		}
+	      	}else{
+	      		this.$Modal.error({
+                title: '错误',
+                content: '服务器异常'
+            });
+	      	}
+	      	setTimeout(this.loading = false, 300);
+      	}
       }
 		}
 	}
@@ -372,33 +399,33 @@
 				vm.psw_error_text = ''
 		}
 	}
-	validateEmail = async(vm)=>{
-		let email = ''
+	validateusername = async(vm)=>{
+		let username = ''
 		if(vm.person_reg){
-			email = vm.person_reg_info.email
+			username = vm.person_reg_info.username
 		}else{
-			email = vm.official_reg_info.email;
+			username = vm.official_reg_info.username;
 		}
-		vm.email_loading = false
-		vm.email_notice = false
-		vm.email_error = false
-		vm.email_succ = false
+		vm.username_loading = false
+		vm.username_notice = false
+		vm.username_error = false
+		vm.username_succ = false
 		let reg = /^(\w-*\.*)+@(\w-?)+(\.\w{2,})+$/;
-		if(!reg.test(email)){
-			vm.email_error = true
+		if(!reg.test(username)){
+			vm.username_error = true
 		} else {
-			vm.email_loading = true
-			let info = await checkForm('username', email),
-					status = info.data.status;
+			vm.username_loading = true
+			let info = await checkForm('username', username),
+					status = info.data.status.toString();
 			if (!status == false) {
-				if(status.toString() == 0){
-					vm.email_loading = false
-					vm.email_error = true
-				 	vm.email_error_text = info.data.message
+				if(status == 0){
+					vm.username_loading = false
+					vm.username_error = true
+				 	vm.username_error_text = info.data.message
 				} else {
-					vm.email_loading = false
-					vm.email_error = false
-					vm.email_succ = true
+					vm.username_loading = false
+					vm.username_error = false
+					vm.username_succ = true
 				}
 			}
 			
@@ -443,6 +470,30 @@
 		})
 		vm.city_opts = all_opts.slice(cidx[0], cidx[1]);
 		vm.official_reg_info.city = vm.city_opts[0].id
+	}
+	initData = vm=>{
+		vm.person_reg_info = {
+			username: '',
+			password: ''
+		}
+		vm.psw_notice = false;
+		vm.psw_error = false;
+		vm.psw_succ = false;
+		vm.username_notice = false;
+		vm.username_error = false;
+		vm.username_succ = false;
+		vm.username_loading = false;
+		vm.nickname_notice = false;
+		vm.nickname_error = false;
+		vm.nickname_succ = false;
+		vm.official_reg_info.username = ''
+		vm.official_reg_info.password = ''
+		vm.official_reg_info.nickname = ''
+		vm.nickname_error_text = '请输入昵称'
+		vm.psw_error_text = '请输入密码'
+		vm.username_error_text = '请输入常用邮箱'
+		vm.nickname_error_text = '请输入昵称'
+		vm.loading = false
 	}
 </script>
 <style lang="scss" scoped>
@@ -530,19 +581,8 @@
     				}
     				.form-control{
     					float: left;
-    					input:focus{
-    						border: 1px solid $orange-color;
-    						outline: 0;
-    					}
     					input{
-    						height: 28px;
 						    width: 196px;
-						    border: 1px solid #ccc;
-						    border-radius: 2px;
-						    padding: 0 2px;
-						    -webkit-box-shadow: 0px 1px 1px 0px #eaeaea inset;
-						    -moz-box-shadow: 0px 1px 1px 0px #eaeaea inset;
-						    box-shadow: 0px 1px 1px 0px #eaeaea inset;
     					}
     				}
     			}
@@ -683,9 +723,21 @@
     cursor: pointer;
     border-radius: 2px;
     background: #FFA00A;
+    position: relative;
 	}
 	.btn:hover{
 		background: linear-gradient(to bottom, rgba(255,184,71,1) 0%,rgba(255,162,16,1) 100%);
 	}
-	
+	.btn i{
+		position: absolute;
+    left: 24%;
+    top: 23%;
+	}
+	button:disabled{
+		opacity: 0.8;
+		cursor: not-allowed;
+	}
+	button:disabled:hover{
+		background: #FFA00A
+	}
 </style>

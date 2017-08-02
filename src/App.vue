@@ -13,9 +13,10 @@ export default {
 </script>
 
 <style>
-@import './style/common.css';
 @import './plugins/font-awsome/css/font-awesome.min.css';
-@import './plugins/font-awsome/css/font-awesome-ie7.min.css';
+@import './style/animate.css';
+@import './style/common.css';
+
 
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;

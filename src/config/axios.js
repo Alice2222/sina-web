@@ -1,5 +1,4 @@
 import axios from 'axios'
-// import fetch from 'node-fetch'
 
 let baseUrl = ''
 if(process.env.NODE_ENV == 'development'){
